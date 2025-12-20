@@ -46,7 +46,3 @@ resource "azurerm_storage_account" "example" {
     lab         = local.common_tags.lab
   }
 }
-
-output "storage_account_name" {
-  value = azurerm_storage_account.example.name
-}
