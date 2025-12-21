@@ -87,8 +87,12 @@ resource "azurerm_virtual_machine" "main" {
     admin_username = "testadmin"
     admin_password = "Password1234"
   }
+   os_profile_linux_config {
+    disable_password_authentication = false
+  }
   tags = {
     environment = var.environment
     name        = "${var.prefix}-vm"
  }
+
 } 
