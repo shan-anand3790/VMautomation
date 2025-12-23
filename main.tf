@@ -19,6 +19,7 @@ variable "environment" {
   type        = string
   default     = "staging"
 }# These act as placeholders for the data coming from your file
+/*
 variable "os_disk_config" {
   description = "Configuration for the OS Disk"
   type        = map(string)
@@ -27,7 +28,7 @@ variable "os_disk_config" {
 variable "image_reference" {
   description = "Configuration for the Source Image"
   type        = map(string)
-}
+}*/
 # ---------------------
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
@@ -36,6 +37,7 @@ resource "azurerm_resource_group" "rg" {
   # optional: add tags if you want to manage them in Terraform
   # tags = { env = "Myterraform Getting started" }
 }
+/*
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.prefix}-vnet"
@@ -106,7 +108,7 @@ output "vm_private_ip" {
 output "os_disk_name" {
   value = azurerm_virtual_machine.main.storage_os_disk[0].name
 }
-
+*/
 # Output the Resource Group Name
 output "resource_group" {
   value = azurerm_resource_group.rg.name
