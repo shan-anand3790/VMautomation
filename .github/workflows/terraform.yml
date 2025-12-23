@@ -96,7 +96,6 @@ jobs:
       run: |
         terraform output -json > vm_output_details.json
         cat vm_output_details.json  # Optional: Print it to the console log for quick viewing
-
     # --- NEW STEP 2: Save the file so you can download it ---
     - name: Upload Output Artifact
       uses: actions/upload-artifact@v4
