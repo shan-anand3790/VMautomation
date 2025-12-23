@@ -97,7 +97,20 @@ jobs:
       run: |
         terraform refresh
         terraform output -json > vm_output_details.json
-        cat vm_output_details.json  # Optional: Print it to the console log for quick viewing
+        cat vm_output_details.json  # Optional: Print it to the console log for quick viewing`
+    - name: Upload JSON to github 
+      run: |    
+        git config --global user.name "shan.anand3790"
+        git config --global user.email "srsanand7@gmail.com"
+        git add vm_output_details.json
+        if git diff --staged --quiet; then
+          echo "No changes in output. Skipping push."
+        else
+          # 5. Commit and Push
+          # [skip ci] is CRITICAL. It prevents this push from triggering the pipeline again (Infinite Loop)
+          git commit -m "Update Terraform Outputs [skip ci]"
+          git push
+        fi
     # --- NEW STEP 2: Save the file so you can download it ---
     - name: Upload Output Artifact
       uses: actions/upload-artifact@v4
