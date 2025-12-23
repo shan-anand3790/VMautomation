@@ -1,0 +1,9 @@
+# Ignore the huge plugin folder
+.terraform/
+
+# Ignore sensitive state files
+*.tfstate
+*.tfstate.backup
+
+# Ignore the plan file
+tfplan
