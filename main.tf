@@ -96,3 +96,19 @@ resource "azurerm_virtual_machine" "main" {
  }
 
 } 
+} 
+# Output the Private IP Address
+output "vm_private_ip" {
+  value = azurerm_network_interface.main.private_ip_address
+}
+
+# Output the OS Disk Name
+output "os_disk_name" {
+  value = azurerm_virtual_machine.main.storage_os_disk[0].name
+}
+
+# Output the Resource Group Name
+output "resource_group" {
+  value = azurerm_resource_group.rg.name
+}
+
