@@ -29,12 +29,12 @@ variable "image_reference" {
 }
 # ---------------------
 # Create a resource group
-#resource "azurerm_resource_group" "rg" {
-  #name     = "${var.prefix}-rg"
- # location = "southindia"
+resource "azurerm_resource_group" "rg" {
+  name     = "${var.prefix}-rg"
+  location = "southindia"
   # optional: add tags if you want to manage them in Terraform
   # tags = { env = "Myterraform Getting started" }
-#}
+}
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.prefix}-vnet"
@@ -110,6 +110,7 @@ output "os_disk_name" {
 output "resource_group" {
   value = azurerm_resource_group.rg.name
 }
+
 
 
 
