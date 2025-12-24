@@ -2,11 +2,16 @@
   "location": {
     "sensitive": false,
     "type": "string",
-    "value": "West Europe"
+    "value": "East US"
   },
   "vm_size": {
     "sensitive": false,
     "type": "string",
-    "value": "Standard_D2s_v3"
+    "value": "Standard_B1s"
+  },
+  "public_ip": {
+    "sensitive": false,
+    "type": "string",
+    "value": "Yes"
   }
 }
