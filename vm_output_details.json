@@ -1,0 +1,18 @@
+[command]/home/runner/work/_temp/48bcc52c-79b2-4dc1-a292-1f7dcaa77e08/terraform-bin output -json
+{
+  "resource_group": {
+    "sensitive": false,
+    "type": "string",
+    "value": "tfvmex-rg"
+  }
+}
+::debug::Terraform exited with code 0.
+::debug::stdout: {%0A  "resource_group": {%0A    "sensitive": false,%0A    "type": "string",%0A    "value": "tfvmex-rg"%0A  }%0A}%0A
+::debug::stderr: 
+::debug::exitcode: 0
+
+::set-output name=stdout::{%0A  "resource_group": {%0A    "sensitive": false,%0A    "type": "string",%0A    "value": "tfvmex-rg"%0A  }%0A}%0A
+
+::set-output name=stderr::
+
+::set-output name=exitcode::0
