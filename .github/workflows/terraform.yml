@@ -110,7 +110,7 @@ jobs:
           # [skip ci] is CRITICAL. It prevents this push from triggering the pipeline again (Infinite Loop)
           git commit -m "Update Terraform Outputs [skip ci]"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push
+          git push --force-with-lease
         fi
     # --- NEW STEP 2: Save the file so you can download it ---
     - name: Upload Output Artifact
