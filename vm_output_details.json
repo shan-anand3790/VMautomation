@@ -1,7 +1,1 @@
 {
-  "resource_group": {
-    "sensitive": false,
-    "type": "string",
-    "value": "tfvmex-rg1"
-  }
-}
