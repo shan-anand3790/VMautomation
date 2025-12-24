@@ -3,5 +3,10 @@
     "sensitive": false,
     "type": "string",
     "value": "Southeast Asia"
+  },
+  "vm_size": {
+    "sensitive": false,
+    "type": "string",
+    "value": "Standard_D2s_v3"
   }
 }
