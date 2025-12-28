@@ -14,6 +14,7 @@ Cloud Provider: Microsoft Azure.
 Output: The system automatically generates a vm_output_details.json file (containing IP, Storage Name, etc.) and pushes it back to the repository for record-keeping.
 
 **User Workflow**
+
 **Step 1: Requesting a Resource**
 Initiate Chat: User opens the "VM Request" bot.
 
