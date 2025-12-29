@@ -2,7 +2,7 @@
   "location": {
     "sensitive": false,
     "type": "string",
-    "value": "Southeast Asia"
+    "value": "West Europe"
   },
   "vm_size": {
     "sensitive": false,
@@ -12,6 +12,6 @@
   "public_ip": {
     "sensitive": false,
     "type": "string",
-    "value": "Yes"
+    "value": "No"
   }
 }
