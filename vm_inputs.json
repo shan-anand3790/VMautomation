@@ -12,6 +12,6 @@
   "public_ip": {
     "sensitive": false,
     "type": "string",
-    "value": "No"
+    "value": "Yes"
   }
 }
