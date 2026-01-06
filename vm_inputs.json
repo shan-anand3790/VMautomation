@@ -2,7 +2,7 @@
   "location": {
     "sensitive": false,
     "type": "string",
-    "value": "West Europe"
+    "value": "Southeast Asia"
   },
   "vm_size": {
     "sensitive": false,
