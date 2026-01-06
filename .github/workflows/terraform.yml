@@ -1,56 +1,130 @@
-name: Mock Cost Test
+
+# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
+# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
+# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
+# to the "main" branch, `terraform apply` will be executed.
+#
+# Documentation for `hashicorp/setup-terraform` is located here: https://github.com/hashicorp/setup-terraform
+#
+# To use this workflow, you will need to complete the following setup steps.
+#
+# 1. Create a `main.tf` file in the root of this repository with the `remote` backend and one or more resources defined.
+#   Example `main.tf`:
+#     # The configuration for the `remote` backend.
+#     terraform {
+#       backend "remote" {
+#         # The name of your Terraform Cloud organization.
+#         organization = "example-organization"
+#
+#         # The name of the Terraform Cloud workspace to store Terraform state files in.
+#         workspaces {
+#           name = "example-workspace"
+#         }
+#       }
+#     }
+#
+#     # An example resource that does nothing.
+#     resource "null_resource" "example" {
+#       triggers = {
+#         value = "A example resource that does nothing!"
+#       }
+#     }
+#
+#
+# 2. Generate a Terraform Cloud user API token and store it as a GitHub secret (e.g. TF_API_TOKEN) on this repository.
+#   Documentation:
+#     - https://www.terraform.io/docs/cloud/users-teams-organizations/api-tokens.html
+#     - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
+#
+# 3. Reference the GitHub secret in step using the `hashicorp/setup-terraform` GitHub Action.
+#   Example:
+#     - name: Setup Terraform
+#       uses: hashicorp/setup-terraform@v1
+#       with:
+#         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+name: 'Terraform deploy a VM'
 
 on:
   push:
     paths:
       - 'vm_inputs.json'
-  workflow_dispatch:
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  # JOB 1: FAKE COST CALCULATION (No Terraform needed)
-  estimate_cost:
-    if: github.event_name == 'push'
+  terraform:
+    name: 'Terraform'
     runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+      ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+  
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+          token: ${{ secrets.MY_PAT_TOKEN }}
 
-      - name: Calculate Mock Price
-        id: cost
-        run: |
-          echo "Simulating Infracost calculation..."
-          # We pick a random price to prove it's working
-          PRICE="75.50"
-          echo "calculated_price=$PRICE" >> $GITHUB_OUTPUT
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_wrapper: false
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+      
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan -var-file="vm_inputs.json" -out=tfplan
 
-      - name: Send Price to Chatbot
-        env:
-          WEBHOOK_URL: ${{ secrets.CHATBOT_WEBHOOK_URL }}
-          PRICE: ${{ steps.cost.outputs.calculated_price }}
-        run: |
-          echo "Sending Price: $PRICE to $WEBHOOK_URL"
+      # On push to "main", build or change infrastructure according to Terraform configuration files
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
+      # --- NEW STEP 1: Generate the JSON file ---
+    - name: Extract Outputs to JSON
+      run: |
+        terraform refresh
+        terraform output -json > vm_output_details.json
+        cat vm_output_details.json  # Optional: Print it to the console log for quick viewing`
+    - name: Upload JSON to github 
+      run: |    
+        git config --global user.name "shan.anand3790"
+        git config --global user.email "srsanand7@gmail.com"
+        git add vm_output_details.json
+        # 4. Commit (if changed)
+        if git diff --staged --quiet; then
+          echo "No changes in output. Skipping push."
+        else
+          git commit -m "Update Terraform Outputs [skip ci]"
           
-          curl -X POST -H "Content-Type: application/json" \
-            -d "{\"type\": \"cost_estimate\", \"cost\": \"$PRICE\"}" \
-            "$WEBHOOK_URL"
-
-  # JOB 2: REAL DEPLOYMENT (Only runs after you click Approve)
-  deploy_vm:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Deploy to Azure
-        run: |
-          echo "This step would run 'terraform apply' in real life."
-          echo "Deployment Successful!"
-
-      - name: Send Success to Chatbot
-        env:
-          WEBHOOK_URL: ${{ secrets.CHATBOT_WEBHOOK_URL }}
-        run: |
-          curl -X POST -H "Content-Type: application/json" \
-            -d '{"type": "deployment_success", "ip": "10.0.0.99"}' \
-            "$WEBHOOK_URL"
+          # 5. Pull latest changes from GitHub (Handling dirty files)
+          # --rebase: Put my changes on top of GitHub's
+          # --autostash: Hide the dirty files (lock files etc) automatically so pull works
+          git pull --rebase --autostash origin main
+          
+          # 6. Push using the Token
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin main
+        fi
+    # --- NEW STEP 2: Save the file so you can download it ---
+    - name: Upload Output Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-details
+        path: vm_output_details.json
